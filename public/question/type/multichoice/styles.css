@@ -82,9 +82,11 @@ body#page-question-type-multichoice div[id^="fitem_id_fraction_"].mb-3 {
 :root{
   --inplace-edit-default-margin: .3em;
   --inplace-edit-default-padding: .3em;
+  --inplace-edit-default-padding-horizontal: .5em;
   --inplace-edit-qtext-margin: .3em;
   --inplace-edit-qtext-padding-top: .5em;
   --inplace-edit-qtext-padding-bottom: .1em;
+  --inplace-edit-qtext-bg-blue: #cce6ea;
 }
 
 .que.multichoice .inplaceeditable {
@@ -96,17 +98,17 @@ body#page-question-type-multichoice div[id^="fitem_id_fraction_"].mb-3 {
 
 .que.multichoice .inplaceeditable:hover:not(.inplaceeditingon) {
     margin-bottom:calc(var(--inplace-edit-default-margin) - var(--bs-border-width));
-    padding: calc(var(--inplace-edit-default-padding) - var(--bs-border-width)) 0.5em var(--inplace-edit-default-padding);
+    padding: calc(var(--inplace-edit-default-padding) - var(--bs-border-width)) var(--inplace-edit-default-padding-horizontal) var(--inplace-edit-default-padding);
 }
 
 .que.multichoice .qtext .inplaceeditable {
     margin-bottom: var(--inplace-edit-qtext-margin);
-    padding: var(--inplace-edit-qtext-padding-top) 0.25em var(--inplace-edit-qtext-padding-bottom);
+    padding: var(--inplace-edit-qtext-padding-top) var(--inplace-edit-default-padding-horizontal) var(--inplace-edit-qtext-padding-bottom);
 }
 
 .que.multichoice .qtext .inplaceeditable:hover:not(.inplaceeditingon) {
     margin-bottom: calc(var(--inplace-edit-qtext-margin) - var(--bs-border-width));
-    padding: calc(var(--inplace-edit-qtext-padding-top) - var(--bs-border-width)) 0.25em var(--inplace-edit-qtext-padding-bottom);
+    padding: calc(var(--inplace-edit-qtext-padding-top) - var(--bs-border-width)) var(--inplace-edit-default-padding-horizontal) var(--inplace-edit-qtext-padding-bottom);
 }
 
 
@@ -123,8 +125,44 @@ body#page-question-type-multichoice div[id^="fitem_id_fraction_"].mb-3 {
     margin-top:5px;
     /* margin-bottom:5px; */
 }
-.que.multichoice .info .no .inplaceeditable:hover:not(.inplaceeditingon) {
-    background-color: #cce6ea;
-    /* margin-top: calc(5px - var(--bs-border-width));
-    margin-bottom: calc(5px - var(--bs-border-width)); */
+
+.inline-editing-item .editinstructions{
+    margin-top:-15px;
+}
+
+.inline-editing-item input[type=text]{
+    background: var(--bs-body-bg);
+    border: var(--bs-border-width) solid var(--bs-gray-500);
+    border-radius: var(--bs-border-radius);
+}
+.que.multichoice .info .no .inplaceeditable input[type=text]{
+    background: var(--bs-body-bg);
+    /* background: var(--inplace-edit-qtext-bg-blue); */
+}
+
+.inline-editing-item input[type="text"]:active{
+    box-shadow: 0 0 0 .25rem rgb(15 108 191 / .75);
+}
+
+.inplaceeditable .inline-editing-item input[type="text"] {
+    margin-bottom:calc(var(--inplace-edit-default-margin) - var(--bs-border-width));
+    padding: calc(var(--inplace-edit-default-padding) - var(--bs-border-width)) 0.5em var(--inplace-edit-default-padding);
+}
+
+/* :not(.que.multichoice .info .no *) */
+.inplaceeditable .inline-editing-item .editinstructions{
+    margin-top: -38px !important;
+    padding: var(--inplace-edit-default-padding-horizontal)!important;
+    background-color: var(--bs-gray-100)!important;
+    box-shadow: var(--bs-box-shadow)!important;
+    border-radius: var(--bs-border-radius)!important;
+}
+
+.que.multichoice .info .no .inplaceeditable .inline-editing-item .editinstructions{
+    margin-top: -32px !important;
+    padding: var(--inplace-edit-default-padding-horizontal)!important;
+    background-color: var(--bs-gray-100);
+    /* background-color: #f8f9fa!important; */
+    box-shadow: var(--bs-box-shadow)!important;
+    border-radius: var(--bs-border-radius)!important;
 }
