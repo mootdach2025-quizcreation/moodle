@@ -50,4 +50,10 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
     ],
+    'qbank_editquestion_get_inline_edit_rendering_data' => [
+        'classname' => 'qbank_editquestion\external\get_inline_edit_rendering_data',
+        'description' => 'Get the data required to render the inline editing template for a question.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
 ];

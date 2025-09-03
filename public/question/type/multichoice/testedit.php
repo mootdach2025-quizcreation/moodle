@@ -40,7 +40,7 @@ if ($questiondata->qtype !== 'multichoice') {
 
 // Check permissions.
 $context = context::instance_by_id($questiondata->contextid);
-[$course, $cm] = get_course_and_cm_from_cmid($context->instanceid, 'quiz');
+[$course, $cm] = get_course_and_cm_from_cmid($context->instanceid);
 require_login($course, false, $cm);
 question_require_capability_on($questiondata, 'edit');
 
