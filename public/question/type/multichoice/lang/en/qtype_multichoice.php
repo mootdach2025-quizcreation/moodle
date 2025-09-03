@@ -83,3 +83,5 @@ $string['showstandardinstruction'] = 'Show standard instructions';
 $string['showstandardinstruction_desc'] = 'Whether to show the instructions "Select one:" or "Select one or more:" before multiple choice answers.';
 $string['showstandardinstruction_help'] = 'Whether to show the instructions \'Select one:\' or \'Select one or more:\' before multiple choice answers. Alternatively, you can include instructions in the question text.';
 $string['toomanyselected'] = 'You have selected too many options.';
+
+$string['editquestionname'] = 'Edit question name';

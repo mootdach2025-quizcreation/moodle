@@ -48,7 +48,8 @@ class inline_edit_view implements renderable, templatable {
         $question = \question_bank::make_question($this->questiondata);
         $data = [
             'questionid' => $this->questiondata->id,
-            'questionname' => format_string($this->questiondata->name),
+            'rawname' => $this->questiondata->name,
+            'displayname' => format_string($this->questiondata->name),
             'questiontext' => format_text(
                 $this->questiondata->questiontext,
                 $this->questiondata->questiontextformat,

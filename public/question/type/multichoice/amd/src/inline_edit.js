@@ -1,0 +1,93 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Manages inline editing of question name
+ *
+ * @module     qtype_multichoice/inline_edit
+ * @copyright  2025 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+// import {call as fetchMany} from 'core/ajax';
+// import MoodleConfig from 'core/config';
+// import {addIconToContainer} from 'core/loadingicon';
+import Notification from 'core/notification';
+import Pending from 'core/pending';
+import {get_string as getString} from 'core/str';
+import {render as renderTemplate} from 'core/templates';
+import {replaceNodeContents} from 'core/templates';
+
+const SELECTORS = {
+    'editableItem': 'span.inplaceeditable',
+};
+
+/**
+ * Handle clicks in the table the shows the grade items.
+ *
+ * @param {Event} e click event.
+ */
+const handleItemClick = async (e) => {
+    const editableItem = e.target.closest(SELECTORS.editableItem);
+
+    // Check this click is on a relevant element.
+    if (!editableItem) {
+        return;
+    }
+
+    e.preventDefault();
+    const pending = new Pending('edit-question-item-start');
+
+    // TODO document.querySelectorAll(SELECTORS.inplaceEditableOn).forEach(stopEditingGadeItem);
+
+    editableItem.dataset.oldContent = editableItem.innerHTML;
+
+    getString('editquestionname', 'qtype_multichoice')
+    .then((instructions) => renderTemplate('qtype_multichoice/editing_item', {
+            "uniqueid": "question-name",
+            "editlablekey": instructions,
+            "rawvalue": editableItem.dataset.rawValue,
+        }
+    )).then((html, js) => {
+        replaceNodeContents(editableItem, html, js || '');
+        const inputElement = editableItem.querySelector('input');
+        inputElement.focus();
+        inputElement.select();
+        editableItem.classList.add('inplaceeditingon');
+        pending.resolve();
+        return null;
+    }).catch(Notification.exception);
+};
+
+/**
+ * Replace the container with a new version.
+ */
+const registerEventListeners = () => {
+    document.body.addEventListener('click', handleItemClick);
+    // document.body.addEventListener('keydown', handleGradeItemKeyDown);
+    // document.body.addEventListener('keyup', handleGradeItemKeyUp);
+    // document.body.addEventListener('focusout', handleGradeItemFocusOut);
+    //
+    // document.body.addEventListener('click', handleButtonClick);
+    //
+    // document.body.addEventListener('change', handleSlotGradeItemChanged);
+};
+
+/**
+ * Entry point.
+ */
+export const init = () => {
+    registerEventListeners();
+};

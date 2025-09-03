@@ -54,4 +54,5 @@ $PAGE->activityheader->disable();
 echo $OUTPUT->header();
 echo $OUTPUT->heading('Test of editing question ' . format_string($questiondata->name));
 echo $editrenderer->render(new inline_edit_view($questiondata));
+$PAGE->requires->js_call_amd('qtype_multichoice/inline_edit', 'init');
 echo $OUTPUT->footer();
