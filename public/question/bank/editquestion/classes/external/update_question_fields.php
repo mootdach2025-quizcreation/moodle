@@ -49,7 +49,7 @@ class update_question_fields extends external_api {
             'questionid' => new external_value(PARAM_INT, 'The id of the question to be updated'),
             'updatedfields' => new external_multiple_structure(
                 new external_single_structure([
-                    'fieldname' => new external_value(PARAM_ALPHANUM, 'The name of the edited field'),
+                    'partname' => new external_value(PARAM_ALPHANUM, 'The name of the edited part'),
                     'value' => new external_value(PARAM_RAW, 'The value of the edited field'),
                 ])
             ),
@@ -66,23 +66,22 @@ class update_question_fields extends external_api {
     public static function execute($questionid, $updatefields) {
         global $DB;
         $updated = false;
-        $question = $DB->get_record('question', ['id' => $questionid], '*', MUST_EXIST);
+        $questiondata = question_bank::load_question_data($questionid);
         // Parameter validation.
         $params = self::validate_parameters(self::execute_parameters(), [
             'questionid' => $questionid,
             'updatefields' => $updatefields,
         ]);
-        foreach($updatefields as $updatefield) {
-            if(property_exists(question,$updatefield['fieldname'])) {
-                $question->{$updatefield['fieldname']} = $updatefield['value'];
+        $classname = "qtype_$questiondata->qtype\\simple_edit";
+        if(class_exists($classname) && method_exists($classname, 'resolved_question_part_name')) {
+            foreach($updatefields as $updatepart) {
+                [$table, $colname, $conditions] = $classname::resolved_question_part_name($questiondata, $updatepart['partname']);
+                $DB->set_field($table, $colname, $updatepart['value'], $conditions);
                 $updated = true;
             }
-            
         }
         if($updated) {
-            $DB->update_record('question', $question);
-
-            $event = \core\event\question_updated::create_from_question_instance($question);
+            $event = \core\event\question_updated::create_from_question_instance($questiondata);
             $event->trigger();
         }
 
