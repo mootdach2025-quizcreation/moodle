@@ -85,3 +85,5 @@ $string['showstandardinstruction_help'] = 'Whether to show the instructions \'Se
 $string['toomanyselected'] = 'You have selected too many options.';
 
 $string['editquestionname'] = 'Edit question name';
+$string['editquestiontext'] = 'Edit question text';
+$string['editchoicex'] = 'Edit choice {$a}';

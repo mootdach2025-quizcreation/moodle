@@ -53,7 +53,7 @@ const updateQuestionItem = (
             methodname: 'qbank_editquestion_update_fields',
             args: {
                 questionid: questionId,
-                quizgradeitems: [{fieldname: itemIdentifier, value: newValue}],
+                updatedfields: [{partname: itemIdentifier, value: newValue}],
             }
         },
         {
@@ -88,7 +88,6 @@ const stopEditingItem = (editableItem) => {
     delete editableItem.dataset.oldContent;
 
     editableItem.classList.remove('inplaceeditingon');
-    editableItem.querySelector('a').focus();
 };
 
 /**
@@ -143,13 +142,13 @@ const handleItemClick = async (e) => {
     e.preventDefault();
     const pending = new Pending('edit-question-item-start');
 
-    // TODO document.querySelectorAll(SELECTORS.inplaceEditableOn).forEach(stopEditingGadeItem);
+    document.querySelectorAll(SELECTORS.inplaceEditableOn).forEach(stopEditingItem);
 
     editableItem.dataset.oldContent = editableItem.innerHTML;
 
     renderTemplate('qtype_multichoice/editing_item', {
-            "uniqueid": "question-name",
-            "editlablekey": editableItem.dataset.editLabel,
+            "uniqueid": editableItem.dataset.itemIdentifier,
+            "editlable": editableItem.dataset.editLabel,
             "rawvalue": editableItem.dataset.rawValue,
         }
     ).then((html, js) => {

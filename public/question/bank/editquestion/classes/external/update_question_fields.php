@@ -20,6 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/engine/bank.php');
 
+use core\context;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
@@ -49,7 +50,7 @@ class update_question_fields extends external_api {
             'questionid' => new external_value(PARAM_INT, 'The id of the question to be updated'),
             'updatedfields' => new external_multiple_structure(
                 new external_single_structure([
-                    'partname' => new external_value(PARAM_ALPHANUM, 'The name of the edited part'),
+                    'partname' => new external_value(PARAM_ALPHANUMEXT, 'The name of the edited part'),
                     'value' => new external_value(PARAM_RAW, 'The value of the edited field'),
                 ])
             ),
@@ -59,46 +60,44 @@ class update_question_fields extends external_api {
     /**
      * Handles the status form submission.
      *
-     * @param $questionid The id of the question to be updated.
-     * @param $updatedfields The fields to be updated.
+     * @param int $questionid The id of the question to be updated.
+     * @param array $updatedfields The fields to be updated.
      * @return bool true if any field was updated, false otherwise
      */
     public static function execute($questionid, $updatefields) {
         global $DB;
-        $updated = false;
-        $questiondata = question_bank::load_question_data($questionid);
-        // Parameter validation.
-        $params = self::validate_parameters(self::execute_parameters(), [
+
+        [
+            'questionid' => $questionid,
+            'updatefields' => $updatefields,
+        ] = self::validate_parameters(self::execute_parameters(), [
             'questionid' => $questionid,
             'updatefields' => $updatefields,
         ]);
+
+        // Check the request is valid.
+        $questiondata = question_bank::load_question_data($questionid);
+        $context = context::instance_by_id($questiondata->contextid);
+        self::validate_context($context);
+        question_require_capability_on($questiondata, 'edit');
+
+        $updated = false;
+        // Parameter validation.
         $classname = "qtype_$questiondata->qtype\\simple_edit";
-        if(class_exists($classname) && method_exists($classname, 'resolved_question_part_name')) {
+        if (class_exists($classname) && method_exists($classname, 'resolved_question_part_name')) {
             foreach($updatefields as $updatepart) {
                 [$table, $colname, $conditions] = $classname::resolved_question_part_name($questiondata, $updatepart['partname']);
                 $DB->set_field($table, $colname, $updatepart['value'], $conditions);
                 $updated = true;
             }
         }
-        if($updated) {
+        if ($updated) {
             $event = \core\event\question_updated::create_from_question_instance($questiondata);
             $event->trigger();
         }
 
         return $updated;
     }
-    
-    /**
-     * {@inheritDoc}
-     * @see \core_external\external_api::validate_parameters()
-     */
-    public static function validate_parameters(\core_external\external_description $description, $params)
-    {
-        if (!question_has_capability_on($params['questionid'], 'edit')) {
-            throw new invalid_parameter_exception();
-        }
-    }
-    
     
     /**
      * Returns description of method result value.

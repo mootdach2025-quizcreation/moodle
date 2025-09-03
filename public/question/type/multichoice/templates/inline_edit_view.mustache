@@ -71,13 +71,22 @@
             <h4 class="accesshide">Question text</h4>
             <div class="qtext">
                 <div class="clearfix">
-                    <span class="inplaceeditable">{{{questiontext}}}</span>
+                    <span class="inplaceeditable"
+                        data-item-identifier="question-text"
+                        data-raw-value="{{rawtext}}"
+                        data-edit-label="{{#str}} editquestiontext, qtype_multichoice {{/str}}">{{{displaytext}}}</span>
                 </div>
             </div>
             <div class="ablock">
                 <ul class="ablock">
                     {{#answers}}
-                        <li data-answer-id="{{id}}"><span class="inplaceeditable">{{{answer}}}</span></li>
+                        <li>
+                            <span class="inplaceeditable"
+                                data-item-identifier="choice-{{id}}"
+                                data-raw-value="{{rawanswer}}"
+                                data-edit-label="{{#str}} editchoicex, qtype_multichoice, {{id}} {{/str}}"
+                            >{{{displayanswer}}}</span>
+                        </li>
                     {{/answers}}
                 </ul>
             </div>

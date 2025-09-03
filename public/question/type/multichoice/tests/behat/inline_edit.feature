@@ -36,3 +36,18 @@ Feature: Inline editing of a multiple-choice question
     And "Two" "list_item" should exist
     And "Three" "list_item" should exist
     And "Four" "list_item" should exist
+
+    When I press "Edit question name"
+    And I should see "Escape to cancel, Enter when finished"
+    And I set the field "Edit question name" to "New name for question"
+    And I press the escape key
+    Then I should not see "New name for question"
+    And I should not see "Escape to cancel, Enter when finished"
+
+    When I press "Edit question text"
+    And I should see "Escape to cancel, Enter when finished"
+    And I set the field "Edit question text" to "New question text"
+    And I press the enter key
+    Then I should not see "Which is the oddest number?"
+    And I should see "New question text"
+    And I should not see "Escape to cancel, Enter when finished"

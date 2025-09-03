@@ -51,7 +51,8 @@ class inline_edit_view implements renderable, templatable {
             'questionid' => $this->questiondata->id,
             'rawname' => $this->questiondata->name,
             'displayname' => format_string($this->questiondata->name),
-            'questiontext' => format_text(
+            'rawtext' => $this->questiondata->questiontext,
+            'displaytext' => format_text(
                 $this->questiondata->questiontext,
                 $this->questiondata->questiontextformat,
             ),
@@ -62,7 +63,8 @@ class inline_edit_view implements renderable, templatable {
         foreach ($this->questiondata->options->answers as $answer) {
             $data['answers'][] = [
                 'id' => $answer->id,
-                'answer' => format_text($answer->answer, $answer->answerformat),
+                'rawanswer' => $answer->answer,
+                'displayanswer' => format_text($answer->answer, $answer->answerformat),
                 'isright' => $answer->fraction > 1 - question_utils::MARK_TOLERANCE,
             ];
         }
