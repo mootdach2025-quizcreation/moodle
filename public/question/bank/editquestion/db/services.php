@@ -32,4 +32,22 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
     ],
+    'qbank_editquestion_update_answers' => [
+        'classname' => 'qbank_editquestion\external\update_question_answers',
+        'description' => 'Update the answers of a question',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+    'qbank_editquestion_update_fields' => [
+        'classname' => 'qbank_editquestion\external\update_question_fields',
+        'description' => 'Update the fields of a question',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+    'qbank_editquestion_create_empty_question' => [
+        'classname' => 'qbank_editquestion\external\create_empty_question',
+        'description' => 'Create an empty question.',
+        'type' => 'write',
+        'ajax' => true,
+    ],
 ];
