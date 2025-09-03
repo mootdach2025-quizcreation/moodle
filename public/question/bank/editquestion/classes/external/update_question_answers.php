@@ -30,7 +30,7 @@ use core\exception\invalid_parameter_exception;
 use core_external\external_multiple_structure;
 
 /**
- * update the answers of a question
+ * update the answers of a question, not submitted answers will be deleted
  *
  * @package    qbank_editquestion
  * @copyright  2025 Moodle Moot DACH Team 1
@@ -47,12 +47,12 @@ class update_question_answers extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
             'questionid' => new external_value(PARAM_INT, 'The id of the question to be updated'),
-            'updatedanswers' => new external_multiple_structure([
+            'updatedanswers' => new external_multiple_structure(
                 new external_single_structure([
-                    'answerid' => new external_value(PARAM_INT, : 'The name of the edited field'),
-                    'value' => new external_value(PARAM_TEXT, 'The value of the answer field'),
-            ])
-            ]),
+                    'answerid' => new external_value(PARAM_INT, 'The answer id (0 for new answer)'),
+                    'value'    => new external_value(PARAM_RAW, 'The text of the answer'),
+                ])
+             ),
         ]);
     }
     
@@ -60,47 +60,70 @@ class update_question_answers extends external_api {
      * Handles the status form submission.
      *
      * @param $questionid The id of the question to be updated.
-     * @param $updatedfields The questioncategory id.
-     * @return int the created question id
+     * @param $updatedanswers The answers.
+     * @return array The updated or created answers as ['answerid' => int, 'value' => string]
      */
     public static function execute($questionid, $updatedanswers) {
         global $DB, $USER;
 
-        $question = $DB->get_record('question', ['id' => $questionid], '*', MUST_EXIST);
+        
         // Parameter validation.
-        self::validate_parameters(self::execute_parameters(), [
+        $params = self::validate_parameters(self::execute_parameters(), [
             'questionid' => $questionid,
             'updatedanswers' => $updatedanswers,
         ]);
+        $question = question_bank::load_question($params['questionid']);
+        if (!$question) {
+            throw new \moodle_exception('invalidquestionid', 'question');
+        }
+        $category = $DB->get_record('question_categories', ['id' => $question->category], '*', MUST_EXIST);
+        $context  = \context::instance_by_id($category->contextid);
+        self::validate_context($context);
+        if (!question_has_capability_on($question, 'edit')) {
+            throw new invalid_parameter_exception();
+        }
+        $answers = [];
         foreach($updatedanswers as $updatedanswer) {
-            if($updatedanswer['id'] == 0) {
-                
+            if($updatedanswer['answerid'] == 0) {
+                $newanswer = new \stdClass();
+                $newanswer->question = $question->id;
+                $newanswer->answer   = $updatedanswer['value'] ?: self::QUESTION_ANSWER_UNEDITED_STRING;
+                $newanswer->fraction = 0;
+                $newanswer->feedback = '';
+                $id = $DB->insert_record('question_answers', $newanswer);
+                $answers[] = [
+                    'answerid' => $id,
+                    'value' => $newanswer->answer
+                ];
+            } else {
+                $answer = $DB->get_record('question_answers', ['id' => $updatedanswer['answerid']]);
+                if($question->id != $answer->question) {
+                    throw new invalid_parameter_exception();
+                }
+                $answer->answer = $updatedanswer['value'] ?: self::QUESTION_ANSWER_UNEDITED_STRING;
+                $DB->update_record('question_answers', $answer);
+                $answers[] = [
+                    'answerid' => $answer->id,
+                    'value' => $answer->answer
+                ];
             }
         }
-        $DB->update_record('question', $question);
 
         $event = \core\event\question_updated::create_from_question_instance($question);
         $event->trigger();
 
-        return $question;
+        return $answers;
     }
-    
-    /**
-     * {@inheritDoc}
-     * @see \core_external\external_api::validate_parameters()
-     */
-    public static function validate_parameters(\core_external\external_description $description, $params)
-    {
-        if (question_has_capability_on($params['questionid'], 'edit')) {
-            throw new invalid_parameter_exception();
-        }
-    }
-    
-    
+
     /**
      * Returns description of method result value.
      */
-    public static function execute_returns(): external_value{
-        return new external_value(PARAM_INT, 'The id of the new question', VALUE_REQUIRED);
+    public static function execute_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'answerid' => new external_value(PARAM_INT, 'The answer id'),
+                'value'    => new external_value(PARAM_RAW, 'The text of the answer'),
+            ])
+            );
     }
 }

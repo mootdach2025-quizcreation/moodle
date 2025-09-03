@@ -60,12 +60,12 @@ class update_question_fields extends external_api {
      * Handles the status form submission.
      *
      * @param $questionid The id of the question to be updated.
-     * @param $updatedfields The questioncategory id.
-     * @return int the created question id
+     * @param $updatedfields The fields to be updated.
+     * @return bool true if any field was updated, false otherwise
      */
     public static function execute($questionid, $updatefields) {
-        global $DB, $USER;
-
+        global $DB;
+        $updated = false;
         $question = $DB->get_record('question', ['id' => $questionid], '*', MUST_EXIST);
         // Parameter validation.
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -73,16 +73,20 @@ class update_question_fields extends external_api {
             'updatefields' => $updatefields,
         ]);
         foreach($updatefields as $updatefield) {
-            if($updatefield['fieldname'] == 'questiontext') {
-                $question->questiontext = $updatefield['value'];
+            if(property_exists(question,$updatefield['fieldname'])) {
+                $question->{$updatefield['fieldname']} = $updatefield['value'];
+                $updated = true;
             }
+            
         }
-        $DB->update_record('question', $question);
+        if($updated) {
+            $DB->update_record('question', $question);
 
-        $event = \core\event\question_updated::create_from_question_instance($question);
-        $event->trigger();
+            $event = \core\event\question_updated::create_from_question_instance($question);
+            $event->trigger();
+        }
 
-        return $question;
+        return $updated;
     }
     
     /**
@@ -91,12 +95,8 @@ class update_question_fields extends external_api {
      */
     public static function validate_parameters(\core_external\external_description $description, $params)
     {
-        if (question_has_capability_on($params['questionid'], 'edit')) {
+        if (!question_has_capability_on($params['questionid'], 'edit')) {
             throw new invalid_parameter_exception();
-        }
-        $qtype = preg_replace('/^qtype_/', '', $params['qtypeplugin']);
-        if (!question_bank::qtype_enabled($qtype)) {
-            throw new \moodle_exception('cannotenable', 'question', $qtype);
         }
     }
     
@@ -105,6 +105,6 @@ class update_question_fields extends external_api {
      * Returns description of method result value.
      */
     public static function execute_returns(): external_value{
-        return new external_value(PARAM_RAW, 'the updated question object', VALUE_REQUIRED);
+        return new external_value(PARAM_BOOL, 'the updated question object', VALUE_REQUIRED);
     }
 }
