@@ -71,3 +71,53 @@ body#page-question-type-multichoice div[id^="fitem_id_fraction_"].mb-3 {
     margin-bottom: 0 !important;
 }
 /* stylelint-enable declaration-no-important  */
+
+
+
+
+/* .qtext.inplaceeditable:hover,
+.que.multichoice .content *[data-answer-id]:hover */
+/* .inplaceeditable {
+} */
+
+.que.multichoice .inplaceeditable {
+    cursor: pointer;
+    display: block;
+    margin-bottom: .5em;
+    padding: 0.5em 0em 0.5em;
+}
+
+.que.multichoice .inplaceeditable:hover:not(.inplaceeditingon) {
+    margin-bottom:calc(0.5em - var(--bs-border-width));
+    padding: calc(0.5em - var(--bs-border-width)) 0.25em 0.5em;
+}
+
+.que.multichoice .qtext .inplaceeditable {
+    margin-bottom: .5em;
+    padding: 0.5em 0.25em 0.1em;
+}
+
+.que.multichoice .qtext .inplaceeditable:hover:not(.inplaceeditingon) {
+    margin-bottom: calc(0.5em - var(--bs-border-width));
+    padding: calc(0.5em - var(--bs-border-width)) 0.25em 0.1em;
+}
+
+
+.inplaceeditable:hover:not(.inplaceeditingon) {
+    /* box-sizing: content-box; */
+    background: var(--bs-body-bg);
+    border: var(--bs-border-width) solid var(--bs-gray-500);
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 0 0 .25rem rgb(15 108 191 / .75);
+}
+
+
+.que.multichoice .info .no .inplaceeditable {
+    margin-top:5px;
+    /* margin-bottom:5px; */
+}
+.que.multichoice .info .no .inplaceeditable:hover:not(.inplaceeditingon) {
+    background-color: #cce6ea;
+    /* margin-top: calc(5px - var(--bs-border-width));
+    margin-bottom: calc(5px - var(--bs-border-width)); */
+}
