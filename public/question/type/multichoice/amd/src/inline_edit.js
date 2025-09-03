@@ -22,7 +22,7 @@
  */
 
 // import {call as fetchMany} from 'core/ajax';
-// import MoodleConfig from 'core/config';
+import MoodleConfig from 'core/config';
 // import {addIconToContainer} from 'core/loadingicon';
 import Notification from 'core/notification';
 import Pending from 'core/pending';
@@ -105,17 +105,35 @@ const handleItemKeyUp = (e) => {
 };
 
 /**
+ * Handle focus out of the editable.
+ *
+ * @param {Event} e event.
+ */
+const handleItemFocusOut = (e) => {
+    if (MoodleConfig.behatsiterunning) {
+        // Behat triggers focusout too often so ignore.
+        return;
+    }
+
+    const editableItem = e.target.closest(SELECTORS.editableItem);
+
+    // Check this click is on a relevant element.
+    if (!editableItem) {
+        return;
+    }
+
+    e.preventDefault();
+    stopEditingItem(editableItem);
+};
+
+/**
  * Initialise all the even handlers.
  */
 const registerEventListeners = () => {
     document.body.addEventListener('click', handleItemClick);
     // document.body.addEventListener('keydown', handleGradeItemKeyDown);
     document.body.addEventListener('keyup', handleItemKeyUp);
-    // document.body.addEventListener('focusout', handleGradeItemFocusOut);
-    //
-    // document.body.addEventListener('click', handleButtonClick);
-    //
-    // document.body.addEventListener('change', handleSlotGradeItemChanged);
+    document.body.addEventListener('focusout', handleItemFocusOut);
 };
 
 /**
