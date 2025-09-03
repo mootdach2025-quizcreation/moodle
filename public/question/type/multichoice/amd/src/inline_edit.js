@@ -26,12 +26,25 @@
 // import {addIconToContainer} from 'core/loadingicon';
 import Notification from 'core/notification';
 import Pending from 'core/pending';
-import {get_string as getString} from 'core/str';
+// import {get_string as getString} from 'core/str';
 import {render as renderTemplate} from 'core/templates';
 import {replaceNodeContents} from 'core/templates';
 
 const SELECTORS = {
     'editableItem': 'span.inplaceeditable',
+};
+
+/**
+ * Removes the edit UI from an editable item.
+ *
+ * @param {HTMLElement} editableItem the editable to turn off.
+ */
+const stopEditingItem = (editableItem) => {
+    editableItem.innerHTML = editableItem.dataset.oldContent;
+    delete editableItem.dataset.oldContent;
+
+    editableItem.classList.remove('inplaceeditingon');
+    editableItem.querySelector('a').focus();
 };
 
 /**
@@ -54,13 +67,12 @@ const handleItemClick = async (e) => {
 
     editableItem.dataset.oldContent = editableItem.innerHTML;
 
-    getString('editquestionname', 'qtype_multichoice')
-    .then((instructions) => renderTemplate('qtype_multichoice/editing_item', {
+    renderTemplate('qtype_multichoice/editing_item', {
             "uniqueid": "question-name",
-            "editlablekey": instructions,
+            "editlablekey": editableItem.dataset.editLabel,
             "rawvalue": editableItem.dataset.rawValue,
         }
-    )).then((html, js) => {
+    ).then((html, js) => {
         replaceNodeContents(editableItem, html, js || '');
         const inputElement = editableItem.querySelector('input');
         inputElement.focus();
@@ -72,12 +84,33 @@ const handleItemClick = async (e) => {
 };
 
 /**
- * Replace the container with a new version.
+ * Handle key up in the editable - used to make Esc cancel.
+ *
+ * @param {Event} e key event.
+ */
+const handleItemKeyUp = (e) => {
+    if (e.keyCode !== 27) {
+        return;
+    }
+
+    const editableItem = e.target.closest(SELECTORS.editableItem);
+
+    // Check this click is on a relevant element.
+    if (!editableItem) {
+        return;
+    }
+
+    e.preventDefault();
+    stopEditingItem(editableItem);
+};
+
+/**
+ * Initialise all the even handlers.
  */
 const registerEventListeners = () => {
     document.body.addEventListener('click', handleItemClick);
     // document.body.addEventListener('keydown', handleGradeItemKeyDown);
-    // document.body.addEventListener('keyup', handleGradeItemKeyUp);
+    document.body.addEventListener('keyup', handleItemKeyUp);
     // document.body.addEventListener('focusout', handleGradeItemFocusOut);
     //
     // document.body.addEventListener('click', handleButtonClick);
