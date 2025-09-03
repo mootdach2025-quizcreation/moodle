@@ -16,6 +16,7 @@
 
 namespace qtype_multichoice\output;
 
+use core\exception\coding_exception;
 use core\output\renderable;
 use core\output\renderer_base;
 use core\output\templatable;
@@ -66,5 +67,42 @@ class inline_edit_view implements renderable, templatable {
             ];
         }
         return $data;
+    }
+
+    /**
+     * Given the name of an editable part of the question, get what need to be updated in the DB.
+     *
+     * @param int $questionid The question id.
+     * @param string $partname Name of the part of the question to change.
+     * @return array with three elements:
+     *      - DB table name.
+     *      - Name of the column to update.
+     *      - Selector to identify which row needs to be changed.
+     */
+    public static function resolved_question_part_name(
+        int $questionid,
+        string $partname,
+    ): array {
+        if ($partname === 'question-name') {
+            return [
+                'question',
+                'name',
+                ['id' => $questionid],
+            ];
+        } else if ($partname === 'question-text') {
+            return [
+                'question',
+                'questiontext',
+                ['id' => $questionid],
+            ];
+        } else if (preg_match('~^choice-(\d+)$~', $partname, $matches)) {
+            return [
+                'question_answers',
+                'answer',
+                ['id' => $matches[1], 'question' => $questionid],
+            ];
+        } else {
+            throw new coding_exception('Unrecognised question part ' . $partname);
+        }
     }
 }
