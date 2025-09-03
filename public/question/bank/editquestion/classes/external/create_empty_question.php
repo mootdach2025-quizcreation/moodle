@@ -46,7 +46,7 @@ class create_empty_question extends external_api {
      */
     public static function execute_parameters() {
         return new external_function_parameters([
-            'qtype' => new external_value(PARAM_COMPONENT, 'The question type'),
+            'qtypeplugin' => new external_value(PARAM_COMPONENT, 'The question type'),
             'questioncategoryid' => new external_value(PARAM_INT, 'The question category where created')
         ]);
     }
@@ -60,15 +60,15 @@ class create_empty_question extends external_api {
      */
     public static function execute($qtypeplugin, $questioncategoryid) {
         global $DB, $USER;
-
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'qtypeplugin' => $qtypeplugin,
+            'questioncategoryid' => $questioncategoryid,
+        ]);
         $category = $DB->get_record('question_categories', ['id' => $params['questioncategoryid']], '*', MUST_EXIST);
         $context  = \context::instance_by_id($category->contextid);
         // Parameter validation.
-        $params = self::validate_parameters(self::execute_parameters(), [
-            'qtypeplugin' => $qtypeplugin,
-            'context' => $context,
-        ]);
-        $qtype = preg_replace('/^qtype_/', '', $qtypeplugin);
+
+        $qtype = preg_replace('/^qtype_/', '', $params['qtypeplugin']);
 
         $qtypeobj = question_bank::get_qtype($qtype);
         $question = new \stdClass();
@@ -77,12 +77,13 @@ class create_empty_question extends external_api {
         $question->idnumber = null;
         $question->status = \question_version_status::QUESTION_STATUS_DRAFT;
         $question->category = $questioncategoryid;
+        $question->questiontext = self::QUESTION_UNEDITED_STRING;
         $qtypeobj->save_question($question, $question);
 
         $event = \core\event\question_updated::create_from_question_instance($question, $context);
         $event->trigger();
 
-        return $question;
+        return $question->id;
     }
     
     /**
@@ -91,10 +92,13 @@ class create_empty_question extends external_api {
      */
     public static function validate_parameters(\core_external\external_description $description, $params)
     {
-        if (!has_capability('moodle/question:add', $params['context'])) {
+        global $DB;
+        $category = $DB->get_record('question_categories', ['id' => $params['questioncategoryid']], '*', MUST_EXIST);
+        $context  = \context::instance_by_id($category->contextid);
+        if (!has_capability('moodle/question:add', $context)) {
             throw new invalid_parameter_exception();
         }
-        self::validate_context($params['context']);
+        self::validate_context($context);
         if($params['qtypeplugin'] != 'qtype_multichoice') {
             throw new invalid_parameter_exception();
         }

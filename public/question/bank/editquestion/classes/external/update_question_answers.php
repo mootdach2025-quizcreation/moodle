@@ -30,15 +30,15 @@ use core\exception\invalid_parameter_exception;
 use core_external\external_multiple_structure;
 
 /**
- * create empty question of a certaint type
+ * update the answers of a question
  *
  * @package    qbank_editquestion
  * @copyright  2025 Moodle Moot DACH Team 1
  * @author     Thomas Wedekind <Thomas.Wedekind@univie.ac.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class update_question_fields extends external_api {
-    
+class update_question_answers extends external_api {
+    const QUESTION_ANSWER_UNEDITED_STRING = '<!-- This question answer is not edited yet -->';
     /**
      * Returns description of method parameters.
      *
@@ -47,12 +47,12 @@ class update_question_fields extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters([
             'questionid' => new external_value(PARAM_INT, 'The id of the question to be updated'),
-            'updatedfields' => new external_multiple_structure(
+            'updatedanswers' => new external_multiple_structure([
                 new external_single_structure([
-                    'fieldname' => new external_value(PARAM_ALPHANUM, 'The name of the edited field'),
-                    'value' => new external_value(PARAM_RAW, 'The value of the edited field'),
-                ])
-            ),
+                    'answerid' => new external_value(PARAM_INT, : 'The name of the edited field'),
+                    'value' => new external_value(PARAM_TEXT, 'The value of the answer field'),
+            ])
+            ]),
         ]);
     }
     
@@ -63,18 +63,18 @@ class update_question_fields extends external_api {
      * @param $updatedfields The questioncategory id.
      * @return int the created question id
      */
-    public static function execute($questionid, $updatefields) {
+    public static function execute($questionid, $updatedanswers) {
         global $DB, $USER;
 
         $question = $DB->get_record('question', ['id' => $questionid], '*', MUST_EXIST);
         // Parameter validation.
-        $params = self::validate_parameters(self::execute_parameters(), [
+        self::validate_parameters(self::execute_parameters(), [
             'questionid' => $questionid,
-            'updatefields' => $updatefields,
+            'updatedanswers' => $updatedanswers,
         ]);
-        foreach($updatefields as $updatefield) {
-            if($updatefield['fieldname'] == 'questiontext') {
-                $question->questiontext = $updatefield['value'];
+        foreach($updatedanswers as $updatedanswer) {
+            if($updatedanswer['id'] == 0) {
+                
             }
         }
         $DB->update_record('question', $question);
@@ -94,10 +94,6 @@ class update_question_fields extends external_api {
         if (question_has_capability_on($params['questionid'], 'edit')) {
             throw new invalid_parameter_exception();
         }
-        $qtype = preg_replace('/^qtype_/', '', $params['qtypeplugin']);
-        if (!question_bank::qtype_enabled($qtype)) {
-            throw new \moodle_exception('cannotenable', 'question', $qtype);
-        }
     }
     
     
@@ -105,6 +101,6 @@ class update_question_fields extends external_api {
      * Returns description of method result value.
      */
     public static function execute_returns(): external_value{
-        return new external_value(PARAM_RAW, 'the updated question object', VALUE_REQUIRED);
+        return new external_value(PARAM_INT, 'The id of the new question', VALUE_REQUIRED);
     }
 }
