@@ -79,27 +79,34 @@ body#page-question-type-multichoice div[id^="fitem_id_fraction_"].mb-3 {
 .que.multichoice .content *[data-answer-id]:hover */
 /* .inplaceeditable {
 } */
+:root{
+  --inplace-edit-default-margin: .3em;
+  --inplace-edit-default-padding: .3em;
+  --inplace-edit-qtext-margin: .3em;
+  --inplace-edit-qtext-padding-top: .5em;
+  --inplace-edit-qtext-padding-bottom: .1em;
+}
 
 .que.multichoice .inplaceeditable {
     cursor: pointer;
     display: block;
-    margin-bottom: .5em;
-    padding: 0.5em 0em 0.5em;
+    margin-bottom: var(--inplace-edit-default-margin);
+    padding: var(--inplace-edit-default-padding) 0em var(--inplace-edit-default-padding);
 }
 
 .que.multichoice .inplaceeditable:hover:not(.inplaceeditingon) {
-    margin-bottom:calc(0.5em - var(--bs-border-width));
-    padding: calc(0.5em - var(--bs-border-width)) 0.25em 0.5em;
+    margin-bottom:calc(var(--inplace-edit-default-margin) - var(--bs-border-width));
+    padding: calc(var(--inplace-edit-default-padding) - var(--bs-border-width)) 0.5em var(--inplace-edit-default-padding);
 }
 
 .que.multichoice .qtext .inplaceeditable {
-    margin-bottom: .5em;
-    padding: 0.5em 0.25em 0.1em;
+    margin-bottom: var(--inplace-edit-qtext-margin);
+    padding: var(--inplace-edit-qtext-padding-top) 0.25em var(--inplace-edit-qtext-padding-bottom);
 }
 
 .que.multichoice .qtext .inplaceeditable:hover:not(.inplaceeditingon) {
-    margin-bottom: calc(0.5em - var(--bs-border-width));
-    padding: calc(0.5em - var(--bs-border-width)) 0.25em 0.1em;
+    margin-bottom: calc(var(--inplace-edit-qtext-margin) - var(--bs-border-width));
+    padding: calc(var(--inplace-edit-qtext-padding-top) - var(--bs-border-width)) 0.25em var(--inplace-edit-qtext-padding-bottom);
 }
 
 
