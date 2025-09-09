@@ -25,8 +25,9 @@ use core_user;
 use question_bank;
 use qbank_editquestion\external\update_question_answers;
 use qbank_editquestion\external\update_question_fields;
+use qbank_editquestion\external\create_empty_question;
 
-class update_question_fields_test extends \advanced_testcase {
+class create_empty_question_test extends \advanced_testcase {
 
     /** @var \stdClass course record. */
     protected $course;
@@ -53,11 +54,11 @@ class update_question_fields_test extends \advanced_testcase {
         $this->resetAfterTest(true);
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $question = $questiongenerator->create_question('multichoice', null, ['category' => $cat->id]);
-        $result = update_question_fields::execute($question->id, [['partname' => 'question-name', 'value' => 'newname']]);
-        $this->assertTrue($result);
-        $questionname = $DB->get_field('question', 'name', ['id' => $question->id]);
-        $this->assertEquals('newname', $questionname);
+        $result = create_empty_question::execute('qtype_multichoice',$cat->id);
+        $this->assertNotNull($result);
+        $questiontext = $DB->get_field('question', 'questiontext', ['id' => $result]);
+
+        $this->assertEquals(create_empty_question::QUESTION_UNEDITED_STRING, $questiontext );
     }
 
 }

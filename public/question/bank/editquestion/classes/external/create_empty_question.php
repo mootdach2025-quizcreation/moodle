@@ -86,10 +86,46 @@ class create_empty_question extends external_api {
         $question->qtype = $qtype;
         $question->createdby = $USER->id;
         $question->idnumber = null;
-        $question->status = \question_version_status::QUESTION_STATUS_DRAFT;
+        $question->name = get_string('defaultquestionname','qbank_editquestion');
+        $question->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_DRAFT;
         $question->category = $params['questioncategoryid'];
-        $question->questiontext = self::QUESTION_UNEDITED_STRING;
-        
+        $question->questiontext = [
+            'text' => self::QUESTION_UNEDITED_STRING,
+            'format' => FORMAT_HTML,
+        ];
+        $question->answer = [
+            1=>
+             [
+                 'answertext' => self::QUESTION_UNEDITED_STRING,
+                 'answerformat' => FORMAT_HTML,
+                 'format' => FORMAT_HTML,
+                 'text' => self::QUESTION_UNEDITED_STRING,
+             ],
+            2=>
+             [
+                 'answertext' => self::QUESTION_UNEDITED_STRING,
+                 'answerformat' => FORMAT_HTML,
+                 'format' => FORMAT_HTML,
+                 'text' => self::QUESTION_UNEDITED_STRING,
+                 
+             ]
+         ];
+        $question->fraction = [1 => 1, 2 => 0];
+        $question->correctfeedback = ['text' => '', 'format' => FORMAT_HTML];
+        $question->single = true;
+        $question->shuffleanswers = true;
+        $question->answernumbering = 'none';
+        $question->partiallycorrectfeedback = $question->correctfeedback;
+        $question->incorrectfeedback = $question->correctfeedback;
+        $question->feedback = [1 => [
+            'format' => FORMAT_HTML,
+            'text' => self::QUESTION_UNEDITED_STRING,
+            ],
+            2 => [
+                'format' => FORMAT_HTML,
+                'text' => self::QUESTION_UNEDITED_STRING,
+            ]
+            ];
         // Save the question.
         $qtypeobj->save_question($question, $question);
         

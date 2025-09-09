@@ -40,3 +40,6 @@ $string['unrecognizedstatus'] = 'Unrecognised status';
 // Edit form.
 $string['versioninfo'] = 'Version';
 $string['status'] = 'Question status';
+
+// Simple edit form.
+$string['defaultquestionname'] = 'Simple Question';
