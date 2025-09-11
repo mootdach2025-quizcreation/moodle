@@ -64,15 +64,15 @@ class update_question_fields extends external_api {
      * @param array $updatedfields The fields to be updated.
      * @return bool true if any field was updated, false otherwise
      */
-    public static function execute($questionid, $updatefields) {
+    public static function execute($questionid, $updatedfields) {
         global $DB;
 
         [
             'questionid' => $questionid,
-            'updatefields' => $updatefields,
+            'updatedfields' => $updatedfields,
         ] = self::validate_parameters(self::execute_parameters(), [
             'questionid' => $questionid,
-            'updatefields' => $updatefields,
+            'updatedfields' => $updatedfields,
         ]);
 
         // Check the request is valid.
@@ -85,12 +85,13 @@ class update_question_fields extends external_api {
         // Parameter validation.
         $classname = "qtype_$questiondata->qtype\\simple_edit";
         if (class_exists($classname) && method_exists($classname, 'resolved_question_part_name')) {
-            foreach($updatefields as $updatepart) {
+            foreach($updatedfields as $updatepart) {
                 [$table, $colname, $conditions] = $classname::resolved_question_part_name($questiondata, $updatepart['partname']);
                 $DB->set_field($table, $colname, $updatepart['value'], $conditions);
                 $updated = true;
             }
         }
+        question_bank::notify_question_edited($questiondata->id);
         if ($updated) {
             $event = \core\event\question_updated::create_from_question_instance($questiondata);
             $event->trigger();
